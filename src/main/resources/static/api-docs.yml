@@ -1,0 +1,708 @@
+openapi: 3.0.0
+info:
+  title: "authorization-registry-service"
+  version: 1.0.0
+  description: >-
+    Business management service.
+  license:
+    name: Apache-2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /user:
+    post:
+      tags:
+        - user
+      description: Create a new user
+      operationId: create
+      parameters:
+        - in: header
+          name: User-Agent
+          schema:
+            type: string
+          required: true
+        - in: header
+          name: App-Version
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_user_v1+json:
+            schema:
+              $ref: '#/components/schemas/NewUserV1'
+      responses:
+        201:
+          description: New user created with successfully
+          content:
+            application/vnd.kaiqkt_user_v1+json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationV1'
+        400:
+          description: User sent an invalid field
+          content:
+            application/vnd.kaiqkt_error_v1.json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+    get:
+      tags:
+        - user
+      description: Get user based on user Id
+      operationId: findByAccessToken
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        200:
+          description: User found successfully
+          content:
+            application/vnd.kaiqkt_user_v1+json:
+              schema:
+                $ref: '#/components/schemas/UserV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        401:
+          description: Access token expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /user/{user_id}:
+    get:
+      tags:
+        - user
+      description: Get user based on user Id
+      operationId: findById
+      parameters:
+        - name: user_id
+          in: path
+          description: User id of a specific user
+          required: true
+          schema:
+            type: string
+      security:
+        - ServiceAuth: [ ]
+      responses:
+        200:
+          description: User found successfully
+          content:
+            application/vnd.kaiqkt_user_v1+json:
+              schema:
+                $ref: '#/components/schemas/UserV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        401:
+          description: Service token is invalid
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /address/{address_id}:
+    get:
+      tags:
+        - address
+      description: Get and address
+      operationId: find
+      parameters:
+        - name: address_id
+          in: path
+          description: Address id of a specific address
+          required: true
+          schema:
+            type: string
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        200:
+          description: Find address successfully
+          content:
+            application/vnd.kaiqkt_address_v1+json:
+              schema:
+                $ref: '#/components/schemas/AddressV1'
+        404:
+          description: Address not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        401:
+          description: Access token expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+    delete:
+      tags:
+        - address
+      description: Delete a specific address
+      operationId: delete
+      parameters:
+        - name: address_id
+          in: path
+          description: Address id of a specific address
+          required: true
+          schema:
+            type: string
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        204:
+          description: Address deleted successfully
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        401:
+          description: Access token expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /address:
+    put:
+      tags:
+        - address
+      description: Update the info of an address
+      operationId: createOrUpdate
+      security:
+        - CustomerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_address_v1+json:
+            schema:
+              $ref: '#/components/schemas/AddressV1'
+      responses:
+        204:
+          description: Address updated successfully
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        401:
+          description: Access token expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+    get:
+      tags:
+        - address
+      description: Get and address
+      operationId: findAll
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        200:
+          description: Find all Addresses successfully
+          content:
+            application/vnd.kaiqkt_address_v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AddressV1'
+        404:
+          description: Addresses not found
+        401:
+          description: Access token expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /user/email:
+    put:
+      tags:
+        - user
+      description: Update email based on access token
+      operationId: updateEmail
+      security:
+        - CustomerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_user_email_v1+json:
+            schema:
+              $ref: '#/components/schemas/EmailV1'
+      responses:
+        204:
+          description: User email updated successfully
+        401:
+          description: Access token is expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /user/update-password:
+    put:
+      tags:
+        - user
+      description: Update password based on the actual password
+      operationId: updatePassword
+      parameters:
+        - in: header
+          name: User-Agent
+          schema:
+            type: string
+          required: true
+        - in: header
+          name: App-Version
+          schema:
+            type: string
+          required: true
+      security:
+        - CustomerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_user_password_v1+json:
+            schema:
+              $ref: '#/components/schemas/NewPasswordV1'
+      responses:
+        204:
+          description: Password updated successfully
+        401:
+          description: Actual password is incorrect
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /redefine-password:
+    post:
+      tags:
+        - redefine-password
+      description: Send redefine password code
+      operationId: sendCodeEmail
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_redefine_password_v1+json:
+            schema:
+              $ref: '#/components/schemas/SendRedefinePasswordV1'
+      responses:
+        204:
+          description: Successfully generated password reset code
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+    put:
+      tags:
+        - redefine-password
+      description: Redefine password based on code
+      operationId: redefinePassword
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_redefine_password_v1+json:
+            schema:
+              $ref: '#/components/schemas/RedefinePasswordV1'
+      responses:
+        204:
+          description: Password updated successfully
+        401:
+          description: Actual password is invalid
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /redefine-password/{code}:
+    get:
+      tags:
+        - redefine-password
+      description: Validate the redefine password code code
+      operationId: validateCode
+      parameters:
+        - name: code
+          in: path
+          description: Code of a specific password redefine request
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Redefine token is valid
+        401:
+          description: Redefine token not exist
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /auth/login:
+    post:
+      tags:
+        - authentication
+      description: Create new login for existent user
+      operationId: authenticate
+      parameters:
+        - in: header
+          name: User-Agent
+          schema:
+            type: string
+          required: true
+        - in: header
+          name: App-Version
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/vnd.kaiqkt_auth_login_v1+json:
+            schema:
+              $ref: '#/components/schemas/LoginV1'
+      responses:
+        200:
+          description: User logged successfully
+          content:
+            application/vnd.kaiqkt_auth_login_v1+json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationV1'
+        404:
+          description: User not found
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+        401:
+          description: Password is invalid
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /auth/logout:
+    delete:
+      tags:
+        - authentication
+      description: Revoke the session based on customer token
+      operationId: logout
+      security:
+      - CustomerAuth: [ ]
+      responses:
+        204:
+          description: User logged out successfully
+  /auth/logout/all:
+    delete:
+      tags:
+        - authentication
+      description: Revoke all sessions except the current based on customer token
+      operationId: logoutAllExceptCurrent
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        204:
+          description: User logged out successfully
+        401:
+          description: Access token is expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /auth/logout/{session_id}:
+    delete:
+      tags:
+        - authentication
+      description: Revoke the session based on specific session id
+      operationId: logoutSessionById
+      parameters:
+        - name: session_id
+          in: path
+          description: session_id of a specific session
+          required: true
+          schema:
+            type: string
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        204:
+          description: User logged out successfully
+        401:
+          description: Access token is expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /auth/refresh:
+    post:
+      tags:
+        - authentication
+      description: Refresh the authentication
+      operationId: refresh
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+        - in: header
+          name: Refresh-Token
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Authentication refreshed
+          content:
+            application/vnd.kaiqkt_auth_refresh_v1+json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationV1'
+        204:
+          description: Authentication refreshed successfully
+        401:
+          description: Refresh token is invalid or expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+  /session:
+    get:
+      tags:
+        - session
+      description: Get sessions by user id
+      operationId: findAllByUserId
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        200:
+          description: Sessions found successfully
+          content:
+            application/vnd.kaiqkt_session_v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionResponseV1'
+        401:
+          description: Access token is expired
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+
+  /session/validate:
+    get:
+      tags:
+        - session
+      description: Return if the session exist
+      operationId: exists
+      security:
+        - CustomerAuth: [ ]
+      responses:
+        204:
+          description: Session exist
+        401:
+          description: Access token is expired or session not exist
+          content:
+            application/vnd.kaiqkt_error_v1+json:
+              schema:
+                $ref: '#/components/schemas/ErrorV1'
+components:
+  schemas:
+    LoginV1:
+      type: object
+      properties:
+        email:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+        - email
+        - password
+
+    NewUserV1:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 60
+        email:
+          type: string
+          pattern: \S+@\S+\.\S+
+        password:
+          type: string
+          pattern: ^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$
+      required:
+        - full_name
+        - email
+        - password
+        - type
+
+    EmailV1:
+      type: object
+      properties:
+        email:
+          type: string
+          pattern: \S+@\S+\.\S+
+      required:
+        - email
+
+    AddressV1:
+      type: object
+      properties:
+        id:
+          type: string
+        zip_code:
+          type: string
+        street:
+          type: string
+        complement:
+          type: string
+        number:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+      required:
+        - zip_code
+        - street
+        - number
+        - district
+        - city
+        - state
+        - id
+
+    NewPasswordV1:
+      type: object
+      properties:
+        actual_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          pattern: ^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$
+      required:
+        - actual_password
+        - new_password
+
+    RedefinePasswordV1:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          pattern: ^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$
+      required:
+        - code
+        - new_password
+
+    SendRedefinePasswordV1:
+      type: object
+      properties:
+        email:
+          type: string
+          minLength: 1
+      required:
+        - email
+
+    UserV1:
+      type: object
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+      required:
+        - full_name
+        - email
+
+    AuthenticationV1:
+      type: object
+      properties:
+        user_id:
+          type: string
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+      required:
+        - user_id
+        - access_token
+        - refresh_token
+
+    SessionResponseV1:
+      type: object
+      properties:
+        device:
+          type: string
+        session_id:
+          type: string
+        this_device:
+          type: boolean
+        active_at:
+          type: string
+      required:
+        - device
+        - session_id
+        - this_device
+        - active_at
+
+    ErrorV1:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+      required:
+        - type
+        - message
+
+    GenericErrorV1:
+      type: object
+      properties:
+        details:
+          type: object
+      required:
+        - details
+
+  securitySchemes:
+    CustomerAuth:
+      type: http
+      scheme: bearer
+    ServiceAuth:
+      type: apiKey
+      name: Authorization
+      in: header
